@@ -1,12 +1,13 @@
 <?php
 
-if(!defined('ABSPATH')) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
 add_action('admin_menu', 'logsfori_add_admin_page');
 
-function logsfori_add_admin_page() {
+function logsfori_add_admin_page()
+{
     add_options_page(
         'LogsForI Settings',
         'LogsForI',
@@ -16,7 +17,8 @@ function logsfori_add_admin_page() {
     );
 }
 
-function logsfori_render_settings_page() {
+function logsfori_render_settings_page()
+{
     ?>
     <div class="wrap">
         <h1>LogsForI Settings</h1>
@@ -33,30 +35,26 @@ function logsfori_render_settings_page() {
 
 add_action('admin_init', 'logsfori_settings_init');
 
-function logsfori_settings_init() {
+function logsfori_settings_init()
+{
     register_setting('logsfori_option_group', 'logsfori_token', 'logsfori_sanitize_token');
     register_setting('logsfori_option_group', 'logsfori_hooks');
     register_setting('logsfori_settings_group', 'logsfori_severity', [
         'default' => LogsForI\Logger::SEVERITY_INFO,
         'sanitize_callback' => 'sanitize_text_field'
     ]);
-
     add_settings_section(
         'logsfori_section',
         'LogsForI Settings',
         '',
         'logsfori_settings'
     );
-
     add_settings_section(
         'logsfori_section_hooks',
         'LogsForI Events',
         '',
         'logsfori_settings'
     );
-
-
-
     add_settings_field(
         'logsfori_token',
         'API Token',
@@ -80,9 +78,65 @@ function logsfori_settings_init() {
         'logsfori_settings',
         'logsfori_section'
     );
+
+    if (class_exists('WooCommerce')) {
+        add_settings_section(
+            'logsfori_section_woocommerce',
+            'WooCommerce Events',
+            '',
+            'logsfori_settings'
+        );
+
+        add_settings_field(
+            'logsfori_woocommerce_hooks',
+            'WooCommerce Events to Log',
+            'logsfori_woocommerce_hooks_callback',
+            'logsfori_settings',
+            'logsfori_section_woocommerce'
+        );
+    }
+}
+function logsfori_woocommerce_enabled_callback() {
+    $enabled = get_option('logsfori_woocommerce_enabled', 0);
+    echo '<input type="checkbox" name="logsfori_woocommerce_enabled" value="1" ' . checked(1, $enabled, false) . '>';
 }
 
-function logsfori_severity_callback() {
+function logsfori_woocommerce_hooks_callback() {
+    $woocommerce_hooks = [
+        'woocommerce_new_order' => 'New order - Triggered when a customer places an order.',
+        'woocommerce_payment_complete' => 'Payment completed - Triggered when a payment is successful.',
+        'woocommerce_payment_failed' => 'Payment failed - Triggered when a payment fails.',
+        'woocommerce_order_status_cancelled' => 'Order cancelled - Triggered when an order is cancelled.',
+        'woocommerce_order_status_completed' => 'Order completed - Triggered when an order is marked as "completed".',
+        'woocommerce_order_status_changed' => 'Order status changed - Triggered when an order status changes (other than completed or cancelled).',
+        'woocommerce_order_refunded' => 'Order refunded - Triggered when a refund is issued for an order.',
+        'woocommerce_delete_product' => 'Product deleted - Triggered when a product is removed from the catalog.',
+        'woocommerce_product_set_stock' => 'Stock updated - Triggered when a product stock level is modified.',
+        'woocommerce_no_stock' => 'Product out of stock - Triggered when a product reaches zero stock.',
+        'woocommerce_created_customer' => 'New customer registered - Triggered when a new user registers an account.',
+        'woocommerce_delete_customer' => 'Customer deleted - Triggered when a customer account is deleted.',
+        'woocommerce_cart_abandoned' => 'Cart abandoned - Triggered when a customer leaves the site with a full cart.',
+        'woocommerce_applied_coupon' => 'Coupon applied - Triggered when a customer applies a discount coupon.',
+        'woocommerce_payment_method_declined' => 'Payment method declined - Triggered when a payment method is rejected (e.g., expired or refused card).',
+        'woocommerce_update_option_woocommerce_version' => 'WooCommerce updated - Triggered when WooCommerce is updated to a new version.',
+        'woocommerce_plugin_status_changed' => 'WooCommerce plugin activated/deactivated - Triggered when a WooCommerce-related plugin is activated or deactivated.',
+        'woocommerce_critical_error' => 'Critical WooCommerce error - Triggered when WooCommerce encounters a major issue (e.g., API failure).',
+    ];
+
+    $enabled_hooks = get_option('logsfori_woocommerce_hooks', []);
+    if (!isset($enabled_hooks)) {
+        $enabled_hooks = array_keys($woocommerce_hooks);
+        update_option('logsfori_woocommerce_hooks', $enabled_hooks);
+    }
+
+    foreach ($woocommerce_hooks as $hook => $label) {
+        $checked = in_array($hook, (array)$enabled_hooks) ? 'checked' : '';
+        echo "<label><input type='checkbox' name='logsfori_woocommerce_hooks[]' value='$hook' $checked> $label</label><br>";
+    }
+}
+
+function logsfori_severity_callback()
+{
     $current_severity = get_option('logsfori_severity', LogsForI\Logger::SEVERITY_INFO);
     $severities = [
         LogsForI\Logger::SEVERITY_DEBUG => 'Debug',
@@ -101,12 +155,14 @@ function logsfori_severity_callback() {
     echo '<p class="description">Select the minimum severity level for logs. Logs with lower severity will not be recorded.</p>';
 }
 
-function logsfori_token_field_render() {
+function logsfori_token_field_render()
+{
     $token = get_option('logsfori_token');
     echo "<input type='password' name='logsfori_token' value='" . esc_attr($token) . "' />";
 }
 
-function logsfori_hooks_field_render() {
+function logsfori_hooks_field_render()
+{
     $hooks = [
         'wp_login' => 'User Login - Triggered when a user successfully logs into the site.',
         'wp_login_failed' => 'Failed Login - Triggered when a user fails to log in due to incorrect credentials.',
@@ -131,13 +187,18 @@ function logsfori_hooks_field_render() {
 
 
     $enabled_hooks = get_option('logsfori_hooks', []);
+    if (!isset($enabled_hooks)) {
+        $enabled_hooks = array_keys($hooks);
+        update_option('logsfori_hooks', $enabled_hooks);
+    }
     foreach ($hooks as $hook => $label) {
         $checked = in_array($hook, (array)$enabled_hooks) ? 'checked' : '';
         echo "<label><input type='checkbox' name='logsfori_hooks[]' value='$hook' $checked> $label</label><br>";
     }
 }
 
-function logsfori_sanitize_token($token) {
+function logsfori_sanitize_token($token)
+{
     return sanitize_text_field($token);
 }
 

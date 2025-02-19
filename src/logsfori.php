@@ -18,19 +18,11 @@ if (!defined('ABSPATH')) {
 require_once LOGSFORI_PLUGIN_DIR . 'lib/Logger.php';
 require_once LOGSFORI_PLUGIN_DIR . 'lib/AuditLog.php';
 require_once LOGSFORI_PLUGIN_DIR . 'lib/FatalError.php';
+require_once LOGSFORI_PLUGIN_DIR . 'lib/WoocommerceEvent.php';
 
 require_once LOGSFORI_PLUGIN_DIR . 'update-checker.php';
 require_once LOGSFORI_PLUGIN_DIR . 'inc/admin/settings.php';
 
 add_action('init', [\LogsFori\AuditLog::class, 'init']);
 add_action('init', [\LogsForI\FatalError::class,'init']);
-
-
-
-/**
- * DEBUG
- */
-
-add_action('template_redirect',function(){
-  (new LogsForI\Logger())->push('page_view', 'User visited the page', LogsForI\Logger::SEVERITY_DEBUG);
-});
+add_action('plugins_loaded', [\LogsForI\WoocommerceEvent::class, 'init']);
