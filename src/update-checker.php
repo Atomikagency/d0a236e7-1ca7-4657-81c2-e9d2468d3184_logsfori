@@ -16,6 +16,9 @@ function logsfori_check_for_update( $transient ) {
     }
 
     $update_data = json_decode( wp_remote_retrieve_body( $response) );
+    if ( ! function_exists( 'get_plugin_data' ) ) {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
 
     // Compare les versions
     $plugin_slug = plugin_basename( LOGSFORI_PLUGIN_DIR.'/logsfori.php' );
