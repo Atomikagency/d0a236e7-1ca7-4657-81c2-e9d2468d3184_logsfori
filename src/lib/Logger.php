@@ -7,7 +7,7 @@ use WpOrg\Requests\Exception\InvalidArgument;
 class Logger
 {
 //    const ENDPOINT = 'https://api.logsfori.com/push-log';
-    const ENDPOINT = 'http://127.0.0.1:3000/push-log';
+    const ENDPOINT = 'http://127.0.0.1:3000';
     const SEVERITY_DEBUG = 'debug';
     const SEVERITY_INFO = 'info';
     const SEVERITY_WARNING = 'warning';
@@ -77,7 +77,7 @@ class Logger
             $payload['extra'] = $extra;
         }
 
-        $curl = curl_init(self::ENDPOINT);
+        $curl = curl_init(self::ENDPOINT.'/push-log');
 
         curl_setopt_array($curl, [
             CURLOPT_RETURNTRANSFER => true,
@@ -107,4 +107,52 @@ class Logger
             throw new InvalidArgument('Invalid severity');
         }
     }
+
+    public static function startTimer(string $timerName)
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION['logsfori_timers'][$timerName] = microtime(true);
+    }
+
+    public static function saveTimer(string $timerName)
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['logsfori_timers'][$timerName])) {
+            return null;
+        }
+
+        $executionTime = round((microtime(true) - $_SESSION['logsfori_timers'][$timerName]) * 1000, 2);
+        unset($_SESSION['logsfori_timers'][$timerName]);
+
+        $token = get_option('logsfori_token');
+        if (empty($token)) {
+            throw new InvalidArgument('Token is required');
+        }
+
+        $payload = [
+            'func_name' => $timerName,
+            'token' => $token,
+            'execution_time' => $executionTime,
+            'created_at' => round(microtime(true) * 1000),
+        ];
+
+        $curl = curl_init(self::ENDPOINT . '/timer');
+
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json'
+            ],
+        ]);
+        curl_exec($curl);
+        curl_close($curl);
+    }
+
 }
