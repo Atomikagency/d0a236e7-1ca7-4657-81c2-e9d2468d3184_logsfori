@@ -2,7 +2,8 @@
 
 namespace LogsForI;
 
-class WoocommerceEvent {
+class WoocommerceEvent
+{
 
     private static $options;
 
@@ -12,9 +13,11 @@ class WoocommerceEvent {
             return;
         }
 
-        $hooks = get_option('logsfori_woocommerce_hooks', []);
+        $hooks = get_option('logsfori_security_hooks', '[]');
+        $hooks = json_decode($hooks, true);
+
         if (empty($hooks)) $hooks = [];
-        self::$options = array_flip($hooks);
+        self::$options = ($hooks);
 
         if (self::isEnabled('woocommerce_new_order')) add_action('woocommerce_new_order', [self::class, 'logNewOrder']);
         if (self::isEnabled('woocommerce_payment_complete')) add_action('woocommerce_payment_complete', [self::class, 'logPaymentComplete']);
@@ -36,17 +39,18 @@ class WoocommerceEvent {
             add_action('activated_plugin', [self::class, 'logPluginStatusChanged']);
             add_action('deactivated_plugin', [self::class, 'logPluginStatusChanged']);
         }
-        if (self::isEnabled('woocommerce_critical_error')) add_action('shutdown', [self::class, 'logCriticalError']);
+        if (self::isEnabled('woocommerce_critical_error')) add_action('woocommerce_shutdown_error', [self::class, 'logCriticalError']);
 
     }
 
     private static function isEnabled($hook)
     {
-        return isset(self::$options[$hook]);
+        return in_array($hook, array_column(self::$options, 'hook_name'));
     }
 
-    public static function push($event, $message, $severity = 'info', $extra = []) {
-        (new Logger())->push($event, $message, $severity, round(microtime(true) * 1000), $extra);
+    public static function push($event, $message, $severity = 'info', $extra = [])
+    {
+        (new Logger())->push($event, $message, $severity, time(), $extra);
     }
 
     public static function logNewOrder($order_id)
@@ -164,9 +168,31 @@ class WoocommerceEvent {
         ]);
     }
 
-    public static function logCriticalError()
+    public static function logCriticalError($error)
     {
-        self::push('woocommerce_critical_error', "A critical WooCommerce error occurred.", 'error');
+        if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+            $message = $error['message'] ?? 'Unknown error';
+            $file = $error['file'] ?? 'unknown';
+            $line = $error['line'] ?? 'unknown';
+            $backtrace = true;
+            if (false !== strpos($message, 'Stack trace:')) {
+                $segments = explode('Stack trace:', $message);
+                $message = str_replace(PHP_EOL, ' ', trim($segments[0]));
+                $backtrace = array_map(
+                    'trim',
+                    explode(PHP_EOL, $segments[1])
+                );
+            }
+
+
+            self::push('woocommerce_critical_error_2', "A critical WooCommerce error occurred.", 'critical', [
+                'backtrace' => $backtrace,
+                'line' => $line,
+                'file' => $file,
+                'message' => $message
+            ]);
+        }
+
     }
 
 

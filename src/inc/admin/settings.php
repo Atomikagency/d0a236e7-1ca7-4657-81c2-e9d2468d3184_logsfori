@@ -8,198 +8,211 @@ add_action('admin_menu', 'logsfori_add_admin_page');
 
 function logsfori_add_admin_page()
 {
-    add_options_page(
-        'LogsForI Settings',
+    add_menu_page(
+        'LogsForI',
         'LogsForI',
         'manage_options',
         'logsfori_settings',
-        'logsfori_render_settings_page'
+        'logsfori_render_settings_page',
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTM5IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMTA2IiBmaWxsPSJub25lIj48ZyBjbGFzcz0iZmlsbHMiPjxwYXRoIGQ9Ik0xMzEuNTMzLDE0LjczOEwyNS42NTYsMTQuNzM4QzIxLjQ0NCwxNC43MzgsMTguMTg5LDExLjMzNywxOC4xODksNy4zNjlDMTguMTg5LDMuNDAxLDIxLjYzNSwwLjAwMCwyNS42NTYsMC4wMDBMMTMxLjUzMywwLjAwMEMxMzUuNzQ1LDAuMDAwLDEzOS4wMDAsMy40MDEsMTM5LjAwMCw3LjM2OUMxMzkuMDAwLDExLjMzNywxMzUuNTU0LDE0LjczOCwxMzEuNTMzLDE0LjczOFpaIiBjbGFzcz0ic3QyIiBzdHlsZT0iZmlsbDogcmdiKDI1NSwgMjU1LCAyNTUpOyBmaWxsLW9wYWNpdHk6IDE7Ii8+PC9nPjxnIGNsYXNzPSJmaWxscyI+PHBhdGggZD0iTTU4LjU4Nyw0NC45NzBMMTguMTg5LDQ0Ljk3MEMxMy45NzcsNDQuOTcwLDEwLjcyMiw0MS41NjksMTAuNzIyLDM3LjYwMUMxMC43MjIsMzMuNjMzLDE0LjE2OCwzMC4yMzIsMTguMTg5LDMwLjIzMkw1OC41ODcsMzAuMjMyQzYyLjc5OSwzMC4yMzIsNjYuMDU0LDMzLjYzMyw2Ni4wNTQsMzcuNjAxQzY2LjA1NCw0MS41NjksNjIuNjA3LDQ0Ljk3MCw1OC41ODcsNDQuOTcwWloiIGNsYXNzPSJzdDIiIHN0eWxlPSJmaWxsOiByZ2IoMjU1LCAyNTUsIDI1NSk7IGZpbGwtb3BhY2l0eTogMTsiLz48L2c+PGcgY2xhc3M9ImZpbGxzIj48cGF0aCBkPSJNMjYuNjEzLDc1Ljc2OEwxMy4wMTksNzUuNzY4QzguODA3LDc1Ljc2OCw1LjU1Miw3Mi4zNjcsNS41NTIsNjguMzk5QzUuNTUyLDY0LjQzMSw4Ljk5OSw2MS4wMzAsMTMuMDE5LDYxLjAzMEwyNi42MTMsNjEuMDMwQzMwLjgyNSw2MS4wMzAsMzQuMDgwLDY0LjQzMSwzNC4wODAsNjguMzk5QzM0LjA4MCw3Mi4zNjcsMzAuNjM0LDc1Ljc2OCwyNi42MTMsNzUuNzY4WloiIGNsYXNzPSJzdDEiIHN0eWxlPSJmaWxsOiByZ2IoMSwgMTAxLCAxODApOyBmaWxsLW9wYWNpdHk6IDE7Ii8+PC9nPjxnIGNsYXNzPSJmaWxscyI+PHBhdGggZD0iTTExMy4zNDQsMTA2LjAwMEw3LjQ2NywxMDYuMDAwQzMuMjU1LDEwNi4wMDAsMC4wMDAsMTAyLjU5OSwwLjAwMCw5OC42MzFDMC4wMDAsOTQuNjYzLDMuNDQ2LDkxLjI2Miw3LjQ2Nyw5MS4yNjJMMTEzLjM0NCw5MS4yNjJDMTE3LjU1Niw5MS4yNjIsMTIwLjgxMSw5NC42NjMsMTIwLjgxMSw5OC42MzFDMTIwLjgxMSwxMDIuNTk5LDExNy4zNjUsMTA2LjAwMCwxMTMuMzQ0LDEwNi4wMDBaWiIgY2xhc3M9InN0MiIgc3R5bGU9ImZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgZmlsbC1vcGFjaXR5OiAxOyIvPjwvZz48ZyBjbGFzcz0iZmlsbHMiPjxwYXRoIGQ9Ik0xMjQuMDY2LDQ0Ljk3MEw4My4wOTQsNDQuOTcwQzc4Ljg4Miw0NC45NzAsNzUuNjI3LDQxLjU2OSw3NS42MjcsMzcuNjAxQzc1LjYyNywzMy42MzMsNzkuMDczLDMwLjIzMiw4My4wOTQsMzAuMjMyTDEyNC4wNjYsMzAuMjMyQzEyOC4yNzgsMzAuMjMyLDEzMS41MzMsMzMuNjMzLDEzMS41MzMsMzcuNjAxQzEzMS41MzMsNDEuNTY5LDEyOC4wODcsNDQuOTcwLDEyNC4wNjYsNDQuOTcwWloiIGNsYXNzPSJzdDEiIHN0eWxlPSJmaWxsOiByZ2IoMSwgMTAxLCAxODApOyBmaWxsLW9wYWNpdHk6IDE7Ii8+PC9nPjxnIGNsYXNzPSJmaWxscyI+PHBhdGggZD0iTTExOC43MDUsNzUuNzY4TDUwLjkyOCw3NS43NjhDNDYuNzE2LDc1Ljc2OCw0My40NjEsNzIuMzY3LDQzLjQ2MSw2OC4zOTlDNDMuNDYxLDY0LjQzMSw0Ni45MDgsNjEuMDMwLDUwLjkyOCw2MS4wMzBMMTE4LjcwNSw2MS4wMzBDMTIyLjkxNyw2MS4wMzAsMTI2LjE3Miw2NC40MzEsMTI2LjE3Miw2OC4zOTlDMTI2LjE3Miw3Mi4zNjcsMTIyLjcyNiw3NS43NjgsMTE4LjcwNSw3NS43NjhaWiIgY2xhc3M9InN0MiIgc3R5bGU9ImZpbGw6IHJnYigyNTUsIDI1NSwgMjU1KTsgZmlsbC1vcGFjaXR5OiAxOyIvPjwvZz48L3N2Zz4=',
+        60
+    );
+
+    add_submenu_page(
+        'logsfori_settings',  // Parent = "LogsForI"
+        'LogsForI - HOOK',  // Titre de la page
+        'Hooks event',  // Texte dans le sous-menu
+        'manage_options',  // Permission requise
+        'logsfori_security',  // Slug de la page
+        'logsfori_render_security_page'  // Fonction d'affichage
     );
 }
 
+function logsfori_enqueue_admin_styles($hook)
+{
+    $hooks = ['logsfori_page_logsfori_security', 'toplevel_page_logsfori_settings'];
+    if (!in_array($hook, $hooks)) {
+        return;
+    }
+    wp_enqueue_script('logsfori-tailwind', 'https://unpkg.com/@tailwindcss/browser@4', [], null);
+}
+
+add_action('admin_enqueue_scripts', 'logsfori_enqueue_admin_styles');
+
+function logsfori_get_severity_levels()
+{
+    return array_keys(\LogsForI\Logger::ALLOWED_SEVERITIES);
+}
+
+/**
+ * GENERAL PAGE SETTINGS
+ * save token
+ */
 function logsfori_render_settings_page()
 {
-    ?>
-    <div class="wrap">
-        <h1>LogsForI Settings</h1>
-        <form method="post" action="options.php">
-            <?php
-            settings_fields('logsfori_option_group');
-            do_settings_sections('logsfori_settings');
-            submit_button();
-            ?>
-        </form>
-    </div>
-    <?php
+    include LOGSFORI_PLUGIN_DIR . '/templates/admin/general.php';
 }
+
+/**
+ * HOOK PAGE SETTINGS
+ * manage event settings
+ */
+function logsfori_render_security_page()
+{
+    logsfori_save_security_hooks();
+    $logsfori_security_hooks = json_decode(get_option('logsfori_security_hooks', '[]'), true);
+    include LOGSFORI_PLUGIN_DIR . '/templates/admin/security.php';
+}
+
+function logsfori_save_security_hooks()
+{
+    if (isset($_POST['security_settings'])) {
+
+        if (!isset($_POST['logsfori_nonce']) || !wp_verify_nonce($_POST['logsfori_nonce'], 'logsfori_save_security')) {
+            return;
+        }
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        if (isset($_POST['hooks']) && is_array($_POST['hooks'])) {
+            $clean_hooks = [];
+
+            foreach ($_POST['hooks'] as $hook) {
+                if (!empty($hook['hook_name']) && !empty($hook['severity'])) {
+                    $clean_hooks[] = [
+                        'hook_name' => sanitize_text_field($hook['hook_name']),
+                        'severity' => sanitize_text_field($hook['severity']),
+                    ];
+                }
+            }
+            update_option('logsfori_security_hooks', json_encode($clean_hooks));
+        }
+    }
+
+    if (isset($_POST['logsfori_apply_default_settings'])) {
+
+        $logsfori_security_hooks = json_decode(get_option('logsfori_security_hooks', '[]'), true);
+        $defaultHooks = [
+            ['hook_name' => 'wp_login', 'severity' => 'info'],
+            ['hook_name' => 'wp_login_failed', 'severity' => 'warning'],
+            ['hook_name' => 'authenticate', 'severity' => 'warning'],
+            ['hook_name' => 'retrieve_password_request', 'severity' => 'info'],
+            ['hook_name' => 'transition_post_status', 'severity' => 'info'],
+            ['hook_name' => 'post_updated', 'severity' => 'info'],
+            ['hook_name' => 'before_delete_post', 'severity' => 'warning'],
+            ['hook_name' => 'add_attachment', 'severity' => 'info'],
+            ['hook_name' => 'user_register', 'severity' => 'info'],
+            ['hook_name' => 'delete_user', 'severity' => 'error'],
+            ['hook_name' => 'profile_update', 'severity' => 'info'],
+            ['hook_name' => 'upgrader_process_complete', 'severity' => 'warning'],
+            ['hook_name' => 'set_user_role', 'severity' => 'warning'],
+            ['hook_name' => 'application_passwords_create_password', 'severity' => 'warning'],
+            ['hook_name' => 'application_passwords_delete_password', 'severity' => 'warning'],
+            ['hook_name' => 'update_option_default_role', 'severity' => 'warning'],
+            ['hook_name' => 'update_option_users_can_register', 'severity' => 'info'],
+            ['hook_name' => 'update_option_admin_email', 'severity' => 'warning'],
+            ['hook_name' => 'core_upgrade', 'severity' => 'info'],
+        ];
+
+        if ( is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
+            $defaultWoocommerceHooks = [
+                ['hook_name' => 'woocommerce_new_order', 'severity' => 'info'],
+                ['hook_name' => 'woocommerce_payment_complete', 'severity' => 'info'],
+                ['hook_name' => 'woocommerce_payment_failed', 'severity' => 'warning'],
+                ['hook_name' => 'woocommerce_order_status_cancelled', 'severity' => 'warning'],
+                ['hook_name' => 'woocommerce_order_status_completed', 'severity' => 'info'],
+                ['hook_name' => 'woocommerce_order_status_changed', 'severity' => 'info'],
+                ['hook_name' => 'woocommerce_order_refunded', 'severity' => 'warning'],
+                ['hook_name' => 'woocommerce_delete_product', 'severity' => 'error'],
+                ['hook_name' => 'woocommerce_product_set_stock', 'severity' => 'info'],
+                ['hook_name' => 'woocommerce_no_stock', 'severity' => 'critical'],
+                ['hook_name' => 'woocommerce_created_customer', 'severity' => 'info'],
+                ['hook_name' => 'woocommerce_delete_customer', 'severity' => 'warning'],
+                ['hook_name' => 'woocommerce_cart_abandoned', 'severity' => 'warning'],
+                ['hook_name' => 'woocommerce_applied_coupon', 'severity' => 'info'],
+                ['hook_name' => 'woocommerce_payment_method_declined', 'severity' => 'warning'],
+                ['hook_name' => 'woocommerce_update_option_woocommerce_version', 'severity' => 'info'],
+                ['hook_name' => 'woocommerce_plugin_status_changed', 'severity' => 'warning'],
+                ['hook_name' => 'woocommerce_critical_error', 'severity' => 'critical'],
+            ];
+            $defaultHooks = array_merge($defaultHooks,$defaultWoocommerceHooks);
+        }
+
+        foreach ($defaultHooks as $defaultHook) {
+            $exists = false;
+            foreach ($logsfori_security_hooks as $existingHook) {
+                if ($existingHook['hook_name'] === $defaultHook['hook_name'] && $existingHook['severity'] === $defaultHook['severity']) {
+                    $exists = true;
+                    break;
+                }
+            }
+
+            if (!$exists) {
+                $logsfori_security_hooks[] = $defaultHook;
+            }
+        }
+        update_option('logsfori_security_hooks', json_encode($logsfori_security_hooks));
+    }
+}
+
 
 add_action('admin_init', 'logsfori_settings_init');
 
 function logsfori_settings_init()
 {
     register_setting('logsfori_option_group', 'logsfori_token', 'logsfori_sanitize_token');
-    register_setting('logsfori_option_group', 'logsfori_hooks');
-    register_setting('logsfori_settings_group', 'logsfori_severity', [
+    register_setting('logsfori_option_group', 'logsfori_severity_min', [
         'default' => LogsForI\Logger::SEVERITY_INFO,
         'sanitize_callback' => 'sanitize_text_field'
     ]);
-    add_settings_section(
-        'logsfori_section',
-        'LogsForI Settings',
-        '',
-        'logsfori_settings'
-    );
-    add_settings_section(
-        'logsfori_section_hooks',
-        'LogsForI Events',
-        '',
-        'logsfori_settings'
-    );
-    add_settings_field(
-        'logsfori_token',
-        'API Token',
-        'logsfori_token_field_render',
-        'logsfori_settings',
-        'logsfori_section'
-    );
-
-    add_settings_field(
-        'logsfori_hooks',
-        'Manage Events',
-        'logsfori_hooks_field_render',
-        'logsfori_settings',
-        'logsfori_section_hooks'
-    );
-
-    add_settings_field(
-        'logsfori_severity',
-        'Log Severity Level',
-        'logsfori_severity_callback',
-        'logsfori_settings',
-        'logsfori_section'
-    );
-
-    if (class_exists('WooCommerce')) {
-        add_settings_section(
-            'logsfori_section_woocommerce',
-            'WooCommerce Events',
-            '',
-            'logsfori_settings'
-        );
-
-        add_settings_field(
-            'logsfori_woocommerce_hooks',
-            'WooCommerce Events to Log',
-            'logsfori_woocommerce_hooks_callback',
-            'logsfori_settings',
-            'logsfori_section_woocommerce'
-        );
-    }
-}
-function logsfori_woocommerce_enabled_callback() {
-    $enabled = get_option('logsfori_woocommerce_enabled', 0);
-    echo '<input type="checkbox" name="logsfori_woocommerce_enabled" value="1" ' . checked(1, $enabled, false) . '>';
-}
-
-function logsfori_woocommerce_hooks_callback() {
-    $woocommerce_hooks = [
-        'woocommerce_new_order' => 'New order - Triggered when a customer places an order.',
-        'woocommerce_payment_complete' => 'Payment completed - Triggered when a payment is successful.',
-        'woocommerce_payment_failed' => 'Payment failed - Triggered when a payment fails.',
-        'woocommerce_order_status_cancelled' => 'Order cancelled - Triggered when an order is cancelled.',
-        'woocommerce_order_status_completed' => 'Order completed - Triggered when an order is marked as "completed".',
-        'woocommerce_order_status_changed' => 'Order status changed - Triggered when an order status changes (other than completed or cancelled).',
-        'woocommerce_order_refunded' => 'Order refunded - Triggered when a refund is issued for an order.',
-        'woocommerce_delete_product' => 'Product deleted - Triggered when a product is removed from the catalog.',
-        'woocommerce_product_set_stock' => 'Stock updated - Triggered when a product stock level is modified.',
-        'woocommerce_no_stock' => 'Product out of stock - Triggered when a product reaches zero stock.',
-        'woocommerce_created_customer' => 'New customer registered - Triggered when a new user registers an account.',
-        'woocommerce_delete_customer' => 'Customer deleted - Triggered when a customer account is deleted.',
-        'woocommerce_cart_abandoned' => 'Cart abandoned - Triggered when a customer leaves the site with a full cart.',
-        'woocommerce_applied_coupon' => 'Coupon applied - Triggered when a customer applies a discount coupon.',
-        'woocommerce_payment_method_declined' => 'Payment method declined - Triggered when a payment method is rejected (e.g., expired or refused card).',
-        'woocommerce_update_option_woocommerce_version' => 'WooCommerce updated - Triggered when WooCommerce is updated to a new version.',
-        'woocommerce_plugin_status_changed' => 'WooCommerce plugin activated/deactivated - Triggered when a WooCommerce-related plugin is activated or deactivated.',
-        'woocommerce_critical_error' => 'Critical WooCommerce error - Triggered when WooCommerce encounters a major issue (e.g., API failure).',
-    ];
-
-    $enabled_hooks = get_option('logsfori_woocommerce_hooks', []);
-    if (!isset($enabled_hooks)) {
-        $enabled_hooks = array_keys($woocommerce_hooks);
-        update_option('logsfori_woocommerce_hooks', $enabled_hooks);
-    }
-
-    foreach ($woocommerce_hooks as $hook => $label) {
-        $checked = in_array($hook, (array)$enabled_hooks) ? 'checked' : '';
-        echo "<label><input type='checkbox' name='logsfori_woocommerce_hooks[]' value='$hook' $checked> $label</label><br>";
-    }
-}
-
-function logsfori_severity_callback()
-{
-    $current_severity = get_option('logsfori_severity', LogsForI\Logger::SEVERITY_INFO);
-    $severities = [
-        LogsForI\Logger::SEVERITY_DEBUG => 'Debug',
-        LogsForI\Logger::SEVERITY_INFO => 'Info',
-        LogsForI\Logger::SEVERITY_WARNING => 'Warning',
-        LogsForI\Logger::SEVERITY_ERROR => 'Error',
-        LogsForI\Logger::SEVERITY_CRITICAL => 'Critical'
-    ];
-
-    echo '<select name="logsfori_severity">';
-    foreach ($severities as $key => $label) {
-        $selected = selected($current_severity, $key, false);
-        echo "<option value=\"$key\" $selected>$label</option>";
-    }
-    echo '</select>';
-    echo '<p class="description">Select the minimum severity level for logs. Logs with lower severity will not be recorded.</p>';
-}
-
-function logsfori_token_field_render()
-{
-    $token = get_option('logsfori_token');
-    echo "<input type='password' name='logsfori_token' value='" . esc_attr($token) . "' />";
-}
-
-function logsfori_hooks_field_render()
-{
-    $hooks = [
-        'wp_login' => 'User Login - Triggered when a user successfully logs into the site.',
-        'wp_login_failed' => 'Failed Login - Triggered when a user fails to log in due to incorrect credentials.',
-        'authenticate' => 'Failed Login (Unknown User) - Triggered when a login attempt is made with a non-existing username.',
-        'retrieve_password_request' => 'Password Reset Request - Triggered when a user requests a password reset.',
-        'transition_post_status' => 'Post Published - Triggered when a post transitions to "published" status.',
-        'post_updated' => 'Post Updated - Triggered when a post is updated.',
-        'before_delete_post' => 'Post Deleted - Triggered before a post is deleted.',
-        'add_attachment' => 'Attachment Added - Triggered when a media file is uploaded to the WordPress library.',
-        'user_register' => 'User Registered - Triggered when a new user account is created.',
-        'delete_user' => 'User Deleted - Triggered when a user account is deleted.',
-        'profile_update' => 'User Profile Updated - Triggered when a user updates their profile information.',
-        'upgrader_process_complete' => 'Plugin or Theme Modified - Triggered when a plugin or theme is installed, updated, or removed.',
-        'set_user_role' => 'User Role Changed - Triggered when a user’s role is modified (e.g., upgraded to admin).',
-        'application_passwords_create_password' => 'Application Password Created - Triggered when an application password is generated for a user.',
-        'application_passwords_delete_password' => 'Application Password Deleted - Triggered when an application password is removed.',
-        'update_option_default_role' => 'Default User Role Changed - Triggered when the default role for new users is modified.',
-        'update_option_users_can_register' => 'User Registration Setting Changed - Triggered when the setting "Anyone can register" is toggled.',
-        'update_option_admin_email' => 'Admin Email Changed - Triggered when the site administrator email is updated.',
-        'core_upgrade' => 'WordPress Core Updated - Triggered when WordPress is updated to a new version.'
-    ];
-
-
-    $enabled_hooks = get_option('logsfori_hooks', []);
-    if (!isset($enabled_hooks)) {
-        $enabled_hooks = array_keys($hooks);
-        update_option('logsfori_hooks', $enabled_hooks);
-    }
-    foreach ($hooks as $hook => $label) {
-        $checked = in_array($hook, (array)$enabled_hooks) ? 'checked' : '';
-        echo "<label><input type='checkbox' name='logsfori_hooks[]' value='$hook' $checked> $label</label><br>";
-    }
+    register_setting('logsfori_option_group', 'logsfori_enable_timer');
 }
 
 function logsfori_sanitize_token($token)
 {
     return sanitize_text_field($token);
 }
+
+function logsfori_save_token() {
+    if (isset($_POST['logsfori_token'])) {
+        $token = sanitize_text_field($_POST['logsfori_token']);
+        update_option('logsfori_token', $token);
+        $response = wp_remote_post(\LogsForI\Logger::ENDPOINT.'/validate-wordpress-connection', [
+            'body'    => json_encode([
+                'token'          => $token,
+                'connection_url' => get_site_url()
+            ]),
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'timeout' => 10,
+        ]);
+
+        if (is_wp_error($response)) {
+            update_option('logsfori_connection_status', 'failed');
+            error_log('LogsForI API Error: ' . $response->get_error_message());
+            return;
+        }
+
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        if(!empty($data['error'])){
+            update_option('logsfori_connection_status', 'failed');
+        }
+
+        if (!isset($data['connection_status']) || $data['connection_status'] !== 'success') {
+            update_option('logsfori_connection_status', 'failed');
+            error_log('LogsForI API validation failed: ' . print_r($data, true));
+            return;
+        }
+
+        update_option('logsfori_connection_status', 'success');
+        update_option('logsfori_project_id', sanitize_text_field($data['data']['project_id']));
+        update_option('logsfori_connection_id', sanitize_text_field($data['data']['connection_id']));
+    }
+}
+add_action('admin_init', 'logsfori_save_token');
 
 ?>

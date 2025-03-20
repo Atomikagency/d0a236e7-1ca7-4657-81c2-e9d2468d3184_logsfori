@@ -11,9 +11,10 @@ class AuditLog
     public static function init()
     {
 
-        $hooks = get_option('logsfori_hooks', []);
+        $hooks = get_option('logsfori_security_hooks', '[]');
+        $hooks = json_decode($hooks,true);
         if (empty($hooks)) $hooks = [];
-        self::$options = array_flip($hooks);
+        self::$options = $hooks;
 
         if (self::isEnabled('wp_login')) add_action('wp_login', [self::class, 'logLogin'], 10, 2);
         if (self::isEnabled('wp_login_failed')) add_action('wp_login_failed', [self::class, 'logFailedLogin']);
@@ -36,14 +37,13 @@ class AuditLog
         if (self::isEnabled('core_upgrade')) add_action('core_upgrade', [self::class, 'logWordPressUpdated']);
 
     }
-
     private static function isEnabled($hook)
     {
-        return isset(self::$options[$hook]);
+        return in_array($hook, array_column(self::$options, 'hook_name'));
     }
 
     public static function push($event, $message, $severity = 'info', $extra = []) {
-        (new Logger())->push($event, $message, $severity, round(microtime(true) * 1000), $extra);
+        (new Logger())->push($event, $message, $severity, time(), $extra);
     }
 
     public static function logLogin($user_login, $user)

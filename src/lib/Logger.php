@@ -33,10 +33,6 @@ class Logger
     )
     {
 
-        if(session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $token = get_option('logsfori_token');
         if (empty($token)) {
             throw new InvalidArgument('Token is required');
@@ -48,7 +44,8 @@ class Logger
             return;
         }
 
-        $timestamp = $timestamp ?? round(microtime(true) * 1000);
+        $timestamp = $timestamp ?? time();
+
 
         if($transactionId === null) {
             $transactionId = session_id();
@@ -56,11 +53,43 @@ class Logger
 
         $extraData = [
             'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'ip_forwarded' => $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 'none',
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
             'url' => $_SERVER['REQUEST_URI'] ?? 'unknown',
             'method' => $_SERVER['REQUEST_METHOD'] ?? 'unknown',
-            'user_id' => wp_get_current_user()->ID ?? 'guest'
+            'referrer' => $_SERVER['HTTP_REFERER'] ?? 'direct_access',
+            'query_params' => json_encode($_GET),
+
+            // Utilisateur
+            'user_id' => wp_get_current_user()->ID ?? 'guest',
+            'user_email' => wp_get_current_user()->user_email ?? 'guest',
+            'user_roles' => implode(', ', wp_get_current_user()->roles) ?? 'guest',
+            'user_display_name' => wp_get_current_user()->display_name ?? 'guest',
+
+            // Page
+            'current_page' => get_the_title() ?? 'unknown',
+            'current_post_id' => get_the_ID() ?? 'none',
+            'is_admin' => is_admin() ? 'yes' : 'no',
+
+            // Système
+            'php_version' => PHP_VERSION,
+            'wp_version' => get_bloginfo('version'),
+            'theme_active' => wp_get_theme()->get('Name'),
+            'theme_version' => wp_get_theme()->get('Version'),
+            'plugin_list' => json_encode(get_option('active_plugins')),
+
+            // Performance
+            'execution_time' => timer_stop(),
+            'memory_usage' => memory_get_usage(true),
+            'memory_peak' => memory_get_peak_usage(true),
+
+            // Sécurité
+            'is_ajax' => wp_doing_ajax() ? 'yes' : 'no',
+            'is_rest' => defined('REST_REQUEST') && REST_REQUEST ? 'yes' : 'no',
+            'is_cron' => defined('DOING_CRON') && DOING_CRON ? 'yes' : 'no',
+            'is_cli' => defined('WP_CLI') && WP_CLI ? 'yes' : 'no',
         ];
+
 
         $extra = array_merge($extraData, $extra);
 
@@ -110,18 +139,12 @@ class Logger
 
     public static function startTimer(string $timerName)
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+
         $_SESSION['logsfori_timers'][$timerName] = microtime(true);
     }
 
     public static function saveTimer(string $timerName)
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         if (!isset($_SESSION['logsfori_timers'][$timerName])) {
             return null;
         }
@@ -134,6 +157,33 @@ class Logger
             throw new InvalidArgument('Token is required');
         }
 
+        $payload = [
+            'func_name' => $timerName,
+            'token' => $token,
+            'execution_time' => $executionTime,
+            'created_at' => round(microtime(true) * 1000),
+        ];
+
+        $curl = curl_init(self::ENDPOINT . '/timer');
+
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json'
+            ],
+        ]);
+        curl_exec($curl);
+        curl_close($curl);
+    }
+
+    public static function saveWordpressTimerStop($timerName,$executionTime){
+        $token = get_option('logsfori_token');
+        if (empty($token)) {
+            error_log('LogsForI: Token missing, cannot send timer log.');
+            return;
+        }
         $payload = [
             'func_name' => $timerName,
             'token' => $token,

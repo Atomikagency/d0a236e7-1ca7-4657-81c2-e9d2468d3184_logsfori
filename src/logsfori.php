@@ -15,9 +15,20 @@ if (!defined('ABSPATH')) {
     exit; // Prevent direct access
 }
 
+function logsfori_start_session()
+{
+    if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+        session_start();
+    }
+}
+add_action('init', 'logsfori_start_session', 1);
+
+
+
 require_once LOGSFORI_PLUGIN_DIR . 'lib/Logger.php';
 require_once LOGSFORI_PLUGIN_DIR . 'lib/AuditLog.php';
 require_once LOGSFORI_PLUGIN_DIR . 'lib/FatalError.php';
+require_once LOGSFORI_PLUGIN_DIR . 'lib/Analytics.php';
 require_once LOGSFORI_PLUGIN_DIR . 'lib/WoocommerceEvent.php';
 
 require_once LOGSFORI_PLUGIN_DIR . 'update-checker.php';
@@ -26,3 +37,5 @@ require_once LOGSFORI_PLUGIN_DIR . 'inc/admin/settings.php';
 add_action('init', [\LogsFori\AuditLog::class, 'init']);
 add_action('init', [\LogsForI\FatalError::class,'init']);
 add_action('plugins_loaded', [\LogsForI\WoocommerceEvent::class, 'init']);
+add_action('init', [\LogsForI\Analytics::class,'init']);
+

@@ -21,9 +21,20 @@ class FatalError {
             $line = $error['line'] ?? 'unknown';
             $severity = 'critical';
             $transactionId = session_id() ?: uniqid('trx_', true);
-            $timestamp = round(microtime(true) * 1000);
+            $timestamp = time();
+
+            $backtrace = true;
+            if (false !== strpos($message, 'Stack trace:')) {
+                $segments = explode('Stack trace:', $message);
+                $message = str_replace(PHP_EOL, ' ', trim($segments[0]));
+                $backtrace = array_map(
+                    'trim',
+                    explode(PHP_EOL, $segments[1])
+                );
+            }
 
             $extra = [
+                'backtrace' => $backtrace,
                 'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
                 'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
                 'url' => $_SERVER['REQUEST_URI'] ?? 'unknown',
@@ -34,4 +45,5 @@ class FatalError {
             (new Logger())->push('fatal_error', "Fatal error in $file on line $line: $message", $severity, $timestamp, $extra, $transactionId);
         }
     }
+
 }
