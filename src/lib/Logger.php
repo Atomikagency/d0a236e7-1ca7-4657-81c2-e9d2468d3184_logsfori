@@ -6,8 +6,8 @@ use WpOrg\Requests\Exception\InvalidArgument;
 
 class Logger
 {
-//    const ENDPOINT = 'https://api.logsfori.com/push-log';
-    const ENDPOINT = 'http://127.0.0.1:3000';
+    const ENDPOINT = 'https://api.logsfori.com';
+//    const ENDPOINT = 'http://127.0.0.1:3000';
     const SEVERITY_DEBUG = 'debug';
     const SEVERITY_INFO = 'info';
     const SEVERITY_WARNING = 'warning';
