@@ -3,7 +3,7 @@
 /**
  * Plugin Name: LogsForI
  * Description: A good way to push logs or event and track them easily
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: Kevin JANIKY
  * Author URI: https://atomikagency.fr/
  */
