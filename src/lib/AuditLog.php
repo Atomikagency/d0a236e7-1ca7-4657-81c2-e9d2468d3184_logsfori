@@ -78,6 +78,13 @@ class AuditLog
         ]);
     }
 
+    public static function logBeforeDeletePost($post_id, $post){
+        self::push('post.'.$post->post_type.'.deleted', "Post was deleted with ID".$post_id, Logger::SEVERITY_WARNING,[
+            'post_id' => $post_id,
+            'post_title' => $post->post_title
+        ]);
+    }
+
     public static function logPostPublished($new_status, $old_status, $post)
     {
         if ($new_status === 'publish' && $old_status !== 'publish') {
